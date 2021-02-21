@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 
+import 'github.dart';
+
 void main() {
   runApp(
     MaterialApp(
@@ -27,6 +29,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
   DateTime _startDate = DateTime(2020, 10, 1);
   DateTime _endDate = DateTime(2021, 3, 31);
   TextEditingController _handleController = TextEditingController();
+  SortType _sortType = SortType.newest;
 
   static final _format = DateFormat.yMMMd();
 
@@ -60,6 +63,17 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
     }
   }
 
+//  Future<void> _launchOAuth() async {
+//    final url = 'https://github.com/login/oauth/authorize?'
+//    'client_id=$clientId'
+//    '&redirect_uri=${Uri.encodeComponent('http://localhost:55827/')}'
+//    '&state=${getRandomString(20)}';
+//
+//    if (await launcher.canLaunch(url)) {
+//      launcher.launch(url);
+//    }
+//  }
+//
   List<Widget> _buildButtonSection(
       String title, BuildContext context, UrlBuilder buildUrl) {
     final theme = Theme.of(context);
@@ -78,15 +92,18 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
           ElevatedButton(
             child: Text('*'),
             style: ElevatedButton.styleFrom(primary: Colors.green),
-            onPressed: () => _checkAndOpen(context,
-                buildUrl(_handleController.text, _startDate, _endDate)),
+            onPressed: () => _checkAndOpen(
+                context,
+                buildUrl(
+                    _handleController.text, _startDate, _endDate, _sortType)),
           ),
           ElevatedButton(
             child: Text('language:dart'),
             style: ElevatedButton.styleFrom(primary: Colors.deepPurple),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(_handleController.text, _startDate, _endDate,
+                buildUrl(
+                    _handleController.text, _startDate, _endDate, _sortType,
                     language: 'dart')),
           ),
           ElevatedButton(
@@ -94,7 +111,8 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
             style: ElevatedButton.styleFrom(primary: Colors.indigo),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(_handleController.text, _startDate, _endDate,
+                buildUrl(
+                    _handleController.text, _startDate, _endDate, _sortType,
                     user: 'flutter')),
           ),
           ElevatedButton(
@@ -102,70 +120,80 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
             style: ElevatedButton.styleFrom(primary: Colors.indigo),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(_handleController.text, _startDate, _endDate,
+                buildUrl(
+                    _handleController.text, _startDate, _endDate, _sortType,
                     user: 'dart-lang')),
           ),
           ElevatedButton(
             child: Text('flutter/codelabs'),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(_handleController.text, _startDate, _endDate,
+                buildUrl(
+                    _handleController.text, _startDate, _endDate, _sortType,
                     user: 'flutter', repo: 'codelabs')),
           ),
           ElevatedButton(
             child: Text('flutter/samples'),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(_handleController.text, _startDate, _endDate,
+                buildUrl(
+                    _handleController.text, _startDate, _endDate, _sortType,
                     user: 'flutter', repo: 'samples')),
           ),
           ElevatedButton(
             child: Text('flutter/flutter'),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(_handleController.text, _startDate, _endDate,
+                buildUrl(
+                    _handleController.text, _startDate, _endDate, _sortType,
                     user: 'flutter', repo: 'flutter')),
           ),
           ElevatedButton(
             child: Text('flutter/website'),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(_handleController.text, _startDate, _endDate,
+                buildUrl(
+                    _handleController.text, _startDate, _endDate, _sortType,
                     user: 'flutter', repo: 'website')),
           ),
           ElevatedButton(
             child: Text('dart-lang/dart-pad'),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(_handleController.text, _startDate, _endDate,
+                buildUrl(
+                    _handleController.text, _startDate, _endDate, _sortType,
                     user: 'dart-lang', repo: 'dart-pad')),
           ),
           ElevatedButton(
             child: Text('dart-lang/dart-services'),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(_handleController.text, _startDate, _endDate,
+                buildUrl(
+                    _handleController.text, _startDate, _endDate, _sortType,
                     user: 'dart-lang', repo: 'dart-services')),
           ),
           ElevatedButton(
             child: Text('dart-lang/samples'),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(_handleController.text, _startDate, _endDate,
+                buildUrl(
+                    _handleController.text, _startDate, _endDate, _sortType,
                     user: 'dart-lang', repo: 'samples')),
           ),
           ElevatedButton(
             child: Text('dart-lang/sdk'),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(_handleController.text, _startDate, _endDate,
+                buildUrl(
+                    _handleController.text, _startDate, _endDate, _sortType,
                     user: 'dart-lang', repo: 'sdk')),
           ),
           ElevatedButton(
             child: Text('dart-lang/site-www'),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(_handleController.text, _startDate, _endDate,
+                buildUrl(
+                    _handleController.text, _startDate, _endDate, _sortType,
                     user: 'dart-lang', repo: 'site-www')),
           ),
         ],
@@ -187,6 +215,23 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+//              Align(
+//                alignment: Alignment.centerRight,
+//                child: ElevatedButton(
+//                  style: ElevatedButton.styleFrom(primary: Colors.green),
+//                  child: Row(
+//                    mainAxisSize: MainAxisSize.min,
+//                    children: [
+//                      Padding(
+//                        padding: const EdgeInsets.fromLTRB(0, 5, 8, 6),
+//                        child: Icon(FontAwesomeIcons.github),
+//                      ),
+//                      Text('Sign in'),
+//                    ],
+//                  ),
+//                  onPressed: () => _launchOAuth(),
+//                ),
+//              ),
               Text(
                 'Your info',
                 style: theme.textTheme.headline6,
@@ -282,6 +327,51 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                       )
                     ],
                   ),
+                  TableRow(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          'Sort by:',
+                          style: theme.textTheme.bodyText2?.makeBold(),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: DropdownButton<SortType>(
+                          items: [
+                            DropdownMenuItem(
+                              value: SortType.newest,
+                              child: Text('Newest'),
+                            ),
+                            DropdownMenuItem(
+                              value: SortType.oldest,
+                              child: Text('Oldest'),
+                            ),
+                            DropdownMenuItem(
+                              value: SortType.mostCommented,
+                              child: Text('Most Commented'),
+                            ),
+                            DropdownMenuItem(
+                              value: SortType.leastCommented,
+                              child: Text('Least Commented'),
+                            ),
+                            DropdownMenuItem(
+                              value: SortType.mostRecentlyUpdated,
+                              child: Text('Most recently updated'),
+                            ),
+                            DropdownMenuItem(
+                              value: SortType.leastRecentlyUpdated,
+                              child: Text('Least recently updated'),
+                            ),
+                          ],
+                          value: _sortType,
+                          onChanged: (val) => setState(() => _sortType = val!),
+                        ),
+                      ),
+                      SizedBox.shrink(),
+                    ],
+                  )
                 ],
               ),
               ..._buildButtonSection(
@@ -303,7 +393,8 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
 typedef String UrlBuilder(
   String handle,
   DateTime start,
-  DateTime end, {
+  DateTime end,
+  SortType sortType, {
   String? language,
   String? user,
   String? repo,
@@ -313,9 +404,30 @@ class UrlMaker {
   static final _formatter = DateFormat('yyyy-MM-dd');
   static const _base = 'https://github.com';
 
-  static String addCommonFilters(
-      String url, String? language, String? user, String? repo) {
+  static String addCommonFilters(String url, SortType sortType,
+      String? language, String? user, String? repo) {
     final sb = StringBuffer(url);
+
+    switch (sortType) {
+      case SortType.newest:
+        sb.write('sort%3Acreated-desc+');
+        break;
+      case SortType.oldest:
+        sb.write('sort%3Acreated-asc+');
+        break;
+      case SortType.mostCommented:
+        sb.write('sort%3Acomments-desc+');
+        break;
+      case SortType.leastCommented:
+        sb.write('sort%3Acomments-asc+');
+        break;
+      case SortType.mostRecentlyUpdated:
+        sb.write('sort%3Aupdated-desc+');
+        break;
+      case SortType.leastRecentlyUpdated:
+        sb.write('sort%3Aupdated-asc+');
+        break;
+    }
 
     if (user != null && repo != null) {
       sb.write('repo%3A$user%2F$repo');
@@ -333,7 +445,8 @@ class UrlMaker {
   static String pullsMerged(
     String handle,
     DateTime start,
-    DateTime end, {
+    DateTime end,
+    SortType sortType, {
     String? language,
     String? user,
     String? repo,
@@ -341,13 +454,14 @@ class UrlMaker {
     var url = '$_base/pulls?q=is%3Apr+author%3A$handle+'
         'merged%3A${_formatter.format(start)}..'
         '${_formatter.format(end)}+is%3Aclosed+';
-    return addCommonFilters(url, language, user, repo);
+    return addCommonFilters(url, sortType, language, user, repo);
   }
 
   static String pullsReviewed(
     String handle,
     DateTime start,
-    DateTime end, {
+    DateTime end,
+    SortType sortType, {
     String? language,
     String? user,
     String? repo,
@@ -355,13 +469,14 @@ class UrlMaker {
     var url = '$_base/pulls?q=is%3Apr+reviewed-by%3A$handle+'
         'merged%3A${_formatter.format(start)}..'
         '${_formatter.format(end)}+is%3Aclosed+';
-    return addCommonFilters(url, language, user, repo);
+    return addCommonFilters(url, sortType, language, user, repo);
   }
 
   static String issuesCreated(
     String handle,
     DateTime start,
-    DateTime end, {
+    DateTime end,
+    SortType sortType, {
     String? language,
     String? user,
     String? repo,
@@ -369,13 +484,14 @@ class UrlMaker {
     var url = '$_base/issues?q=is%3Aissue+author%3A$handle+'
         'created%3A${_formatter.format(start)}..'
         '${_formatter.format(end)}+';
-    return addCommonFilters(url, language, user, repo);
+    return addCommonFilters(url, sortType, language, user, repo);
   }
 
   static String issuesInvolved(
     String handle,
     DateTime start,
-    DateTime end, {
+    DateTime end,
+    SortType sortType, {
     String? language,
     String? user,
     String? repo,
@@ -383,6 +499,6 @@ class UrlMaker {
     var url = '$_base/issues?q=is%3Aissue+involves%3A$handle+'
         'updated%3A${_formatter.format(start)}..'
         '${_formatter.format(end)}+';
-    return addCommonFilters(url, language, user, repo);
+    return addCommonFilters(url, sortType, language, user, repo);
   }
 }
