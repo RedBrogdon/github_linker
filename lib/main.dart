@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart' as launcher;
 void main() {
   runApp(
     MaterialApp(
-      title: 'Flutter Demo',
+      title: 'GitHub search linker',
       home: GitHubLinksScreen(),
     ),
   );
@@ -44,19 +44,31 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
     await prefs.setString('handle', handle);
   }
 
-  Future<void> _open(String url) async {
-    if (await launcher.canLaunch(url)) {
-      await launcher.launch(url);
+  Future<void> _checkAndOpen(BuildContext context, String url) async {
+    if (_handleController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('You need to enter a handle first!'),
+      ));
+    } else {
+      if (await launcher.canLaunch(url)) {
+        await launcher.launch(url);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Could not open link! :('),
+        ));
+      }
     }
   }
 
   List<Widget> _buildButtonSection(
-      String title, TextTheme textTheme, UrlBuilder buildUrl) {
+      String title, BuildContext context, UrlBuilder buildUrl) {
+    final theme = Theme.of(context);
+
     return [
       SizedBox(height: 32),
       Text(
         title,
-        style: textTheme.headline6,
+        style: theme.textTheme.headline6,
       ),
       SizedBox(height: 16),
       Wrap(
@@ -65,62 +77,96 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
         children: [
           ElevatedButton(
             child: Text('*'),
-            onPressed: () =>
-                _open(buildUrl(_handleController.text, _startDate, _endDate)),
+            style: ElevatedButton.styleFrom(primary: Colors.green),
+            onPressed: () => _checkAndOpen(context,
+                buildUrl(_handleController.text, _startDate, _endDate)),
           ),
           ElevatedButton(
             child: Text('language:dart'),
-            onPressed: () => _open(buildUrl(
-                _handleController.text, _startDate, _endDate,
-                language: 'dart')),
+            style: ElevatedButton.styleFrom(primary: Colors.deepPurple),
+            onPressed: () => _checkAndOpen(
+                context,
+                buildUrl(_handleController.text, _startDate, _endDate,
+                    language: 'dart')),
           ),
           ElevatedButton(
             child: Text('flutter/*'),
-            onPressed: () => _open(buildUrl(
-                _handleController.text, _startDate, _endDate,
-                user: 'flutter')),
+            style: ElevatedButton.styleFrom(primary: Colors.indigo),
+            onPressed: () => _checkAndOpen(
+                context,
+                buildUrl(_handleController.text, _startDate, _endDate,
+                    user: 'flutter')),
           ),
           ElevatedButton(
             child: Text('dart-lang/*'),
-            onPressed: () => _open(buildUrl(
-                _handleController.text, _startDate, _endDate,
-                user: 'dart-lang')),
+            style: ElevatedButton.styleFrom(primary: Colors.indigo),
+            onPressed: () => _checkAndOpen(
+                context,
+                buildUrl(_handleController.text, _startDate, _endDate,
+                    user: 'dart-lang')),
           ),
           ElevatedButton(
             child: Text('flutter/codelabs'),
-            onPressed: () => _open(buildUrl(
-                _handleController.text, _startDate, _endDate,
-                user: 'flutter', repo: 'codelabs')),
+            onPressed: () => _checkAndOpen(
+                context,
+                buildUrl(_handleController.text, _startDate, _endDate,
+                    user: 'flutter', repo: 'codelabs')),
           ),
           ElevatedButton(
             child: Text('flutter/samples'),
-            onPressed: () => _open(buildUrl(
-                _handleController.text, _startDate, _endDate,
-                user: 'flutter', repo: 'samples')),
+            onPressed: () => _checkAndOpen(
+                context,
+                buildUrl(_handleController.text, _startDate, _endDate,
+                    user: 'flutter', repo: 'samples')),
+          ),
+          ElevatedButton(
+            child: Text('flutter/flutter'),
+            onPressed: () => _checkAndOpen(
+                context,
+                buildUrl(_handleController.text, _startDate, _endDate,
+                    user: 'flutter', repo: 'flutter')),
           ),
           ElevatedButton(
             child: Text('flutter/website'),
-            onPressed: () => _open(buildUrl(
-                _handleController.text, _startDate, _endDate,
-                user: 'flutter', repo: 'website')),
+            onPressed: () => _checkAndOpen(
+                context,
+                buildUrl(_handleController.text, _startDate, _endDate,
+                    user: 'flutter', repo: 'website')),
           ),
           ElevatedButton(
             child: Text('dart-lang/dart-pad'),
-            onPressed: () => _open(buildUrl(
-                _handleController.text, _startDate, _endDate,
-                user: 'dart-lang', repo: 'dart-pad')),
+            onPressed: () => _checkAndOpen(
+                context,
+                buildUrl(_handleController.text, _startDate, _endDate,
+                    user: 'dart-lang', repo: 'dart-pad')),
           ),
           ElevatedButton(
             child: Text('dart-lang/dart-services'),
-            onPressed: () => _open(buildUrl(
-                _handleController.text, _startDate, _endDate,
-                user: 'dart-lang', repo: 'dart-services')),
+            onPressed: () => _checkAndOpen(
+                context,
+                buildUrl(_handleController.text, _startDate, _endDate,
+                    user: 'dart-lang', repo: 'dart-services')),
           ),
           ElevatedButton(
             child: Text('dart-lang/samples'),
-            onPressed: () => _open(buildUrl(
-                _handleController.text, _startDate, _endDate,
-                user: 'dart-lang', repo: 'samples')),
+            onPressed: () => _checkAndOpen(
+                context,
+                buildUrl(_handleController.text, _startDate, _endDate,
+                    user: 'dart-lang', repo: 'samples')),
+          ),
+          ElevatedButton(
+            child: Text('dart-lang/sdk'),
+            onPressed: () => _checkAndOpen(
+                context,
+                buildUrl(_handleController.text, _startDate, _endDate,
+                    user: 'dart-lang', repo: 'sdk')),
+          ),
+          ElevatedButton(
+            child: Text('dart-lang/site-www'),
+            onPressed: () => _checkAndOpen(
+                context,
+                buildUrl(_handleController.text, _startDate, _endDate,
+                    user: 'dart-lang', repo: 'site-www')),
           ),
         ],
       ),
@@ -129,11 +175,11 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('GitHub linkifier'),
+        title: Text('GitHub Search Linker'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -143,7 +189,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
             children: [
               Text(
                 'Your info',
-                style: textTheme.headline6,
+                style: theme.textTheme.headline6,
               ),
               SizedBox(height: 16),
               TextField(
@@ -170,7 +216,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
                           'Start date for perf:',
-                          style: textTheme.bodyText2?.makeBold(),
+                          style: theme.textTheme.bodyText2?.makeBold(),
                         ),
                       ),
                       Padding(
@@ -206,7 +252,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
                           'End date for perf:',
-                          style: textTheme.bodyText2?.makeBold(),
+                          style: theme.textTheme.bodyText2?.makeBold(),
                         ),
                       ),
                       Padding(
@@ -239,13 +285,13 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                 ],
               ),
               ..._buildButtonSection(
-                  'Pull requests merged', textTheme, UrlMaker.pullsMerged),
+                  'Pull requests merged', context, UrlMaker.pullsMerged),
               ..._buildButtonSection(
-                  'Pull requests reviewed', textTheme, UrlMaker.pullsReviewed),
+                  'Pull requests reviewed', context, UrlMaker.pullsReviewed),
               ..._buildButtonSection(
-                  'Issues created', textTheme, UrlMaker.issuesCreated),
+                  'Issues created', context, UrlMaker.issuesCreated),
               ..._buildButtonSection(
-                  'Issues involved in', textTheme, UrlMaker.issuesInvolved),
+                  'Issues involved in', context, UrlMaker.issuesInvolved),
             ],
           ),
         ),
@@ -267,6 +313,23 @@ class UrlMaker {
   static final _formatter = DateFormat('yyyy-MM-dd');
   static const _base = 'https://github.com';
 
+  static String addCommonFilters(
+      String url, String? language, String? user, String? repo) {
+    final sb = StringBuffer(url);
+
+    if (user != null && repo != null) {
+      sb.write('repo%3A$user%2F$repo');
+    } else if (user != null) {
+      sb.write('user%3A$user');
+    }
+
+    if (language != null) {
+      sb.write('language%3A$language+)');
+    }
+
+    return sb.toString();
+  }
+
   static String pullsMerged(
     String handle,
     DateTime start,
@@ -275,21 +338,10 @@ class UrlMaker {
     String? user,
     String? repo,
   }) {
-    String url = '$_base/pulls?q=is%3Apr+author%3A$handle+'
+    var url = '$_base/pulls?q=is%3Apr+author%3A$handle+'
         'merged%3A${_formatter.format(start)}..'
         '${_formatter.format(end)}+is%3Aclosed+';
-
-    if (user != null && repo != null) {
-      url += 'repo%3A$user%2F$repo';
-    } else if (user != null) {
-      url += 'user%3A$user';
-    }
-
-    if (language != null) {
-      url += 'language%3A$language+';
-    }
-
-    return url;
+    return addCommonFilters(url, language, user, repo);
   }
 
   static String pullsReviewed(
@@ -300,21 +352,10 @@ class UrlMaker {
     String? user,
     String? repo,
   }) {
-    String url = '$_base/pulls?q=is%3Apr+reviewed-by%3A$handle+'
+    var url = '$_base/pulls?q=is%3Apr+reviewed-by%3A$handle+'
         'merged%3A${_formatter.format(start)}..'
         '${_formatter.format(end)}+is%3Aclosed+';
-
-    if (user != null && repo != null) {
-      url += 'repo%3A$user%2F$repo';
-    } else if (user != null) {
-      url += 'user%3A$user';
-    }
-
-    if (language != null) {
-      url += 'language%3A$language+';
-    }
-
-    return url;
+    return addCommonFilters(url, language, user, repo);
   }
 
   static String issuesCreated(
@@ -325,21 +366,10 @@ class UrlMaker {
     String? user,
     String? repo,
   }) {
-    String url = '$_base/issues?q=is%3Aissue+author%3A$handle+'
+    var url = '$_base/issues?q=is%3Aissue+author%3A$handle+'
         'created%3A${_formatter.format(start)}..'
         '${_formatter.format(end)}+';
-
-    if (user != null && repo != null) {
-      url += 'repo%3A$user%2F$repo';
-    } else if (user != null) {
-      url += 'user%3A$user';
-    }
-
-    if (language != null) {
-      url += 'language%3A$language+';
-    }
-
-    return url;
+    return addCommonFilters(url, language, user, repo);
   }
 
   static String issuesInvolved(
@@ -350,20 +380,9 @@ class UrlMaker {
     String? user,
     String? repo,
   }) {
-    String url = '$_base/issues?q=is%3Aissue+involves%3A$handle+'
+    var url = '$_base/issues?q=is%3Aissue+involves%3A$handle+'
         'updated%3A${_formatter.format(start)}..'
         '${_formatter.format(end)}+';
-
-    if (user != null && repo != null) {
-      url += 'repo%3A$user%2F$repo';
-    } else if (user != null) {
-      url += 'user%3A$user';
-    }
-
-    if (language != null) {
-      url += 'language%3A$language+';
-    }
-
-    return url;
+    return addCommonFilters(url, language, user, repo);
   }
 }
