@@ -11,12 +11,3 @@ String getRandomString(int length) => String.fromCharCodes(
         (index) => _chars.codeUnitAt(_rnd.nextInt(_chars.length)),
       ),
     );
-
-enum SortType {
-  newest,
-  oldest,
-  mostCommented,
-  leastCommented,
-  mostRecentlyUpdated,
-  leastRecentlyUpdated,
-}

@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 
-import 'github.dart';
+import 'app_state.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final appState = AppState();
+
   runApp(
-    const MaterialApp(
-      title: 'GitHub search linker',
-      home: GitHubLinksScreen(),
+    ChangeNotifierProvider.value(
+      value: appState,
+      child: const MaterialApp(
+        title: 'GitHub search linker',
+        home: GitHubLinksScreen(),
+      ),
     ),
   );
 }
@@ -28,39 +35,42 @@ extension BoldableTextStyle on TextStyle {
 }
 
 class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
-  DateTime _startDate = DateTime(2020, 10, 1);
-  DateTime _endDate = DateTime(2021, 3, 31);
   final _handleController = TextEditingController();
-  SortType _sortType = SortType.newest;
 
   static final _format = DateFormat.yMMMd();
 
   @override
   void initState() {
     super.initState();
-
-    SharedPreferences.getInstance().then((prefs) async {
-      final handle = prefs.getString('handle') ?? '';
-      _handleController.text = handle;
-    });
-
-    final now = DateTime.now();
-
-    if (now.month < 4) {
-      _startDate = DateTime(now.year - 1, 10, 1);
-      _endDate = DateTime(now.year, 3, 31);
-    } else if (now.month < 10) {
-      _startDate = DateTime(now.year, 4, 1);
-      _endDate = DateTime(now.year, 9, 30);
-    } else {
-      _startDate = DateTime(now.year, 10, 1);
-      _endDate = DateTime(now.year + 1, 3, 31);
-    }
   }
 
-  Future<void> _saveHandle(String handle) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('handle', handle);
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final appState = Provider.of<AppState>(context);
+
+    if (_handleController.text != appState.username) {
+      _handleController.text = appState.username;
+    }
+
+    if (appState.hasSeenPopup == false) {
+      Future.delayed(Duration.zero, () {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) {
+            return const AlertPopup(
+              title: 'A word about GitHub',
+              message: 'The search API used by this tool requires that you '
+                  'be logged into GitHub. If you\'re not, you\'ll see a 404 '
+                  'page instead of proper search results.',
+            );
+          },
+        ).then((result) {
+          appState.setHasSeenPopup(true);
+        });
+      });
+    }
   }
 
   Future<void> _checkAndOpen(BuildContext context, String url) async {
@@ -81,6 +91,9 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
 
   List<Widget> _buildButtonSection(
     String title,
+    DateTime startDate,
+    DateTime endDate,
+    SortType sortType,
     BuildContext context,
     UrlBuilder buildUrl,
   ) {
@@ -100,18 +113,15 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
           ElevatedButton(
             child: const Text('*'),
             style: ElevatedButton.styleFrom(primary: Colors.green),
-            onPressed: () => _checkAndOpen(
-                context,
-                buildUrl(
-                    _handleController.text, _startDate, _endDate, _sortType)),
+            onPressed: () => _checkAndOpen(context,
+                buildUrl(_handleController.text, startDate, endDate, sortType)),
           ),
           ElevatedButton(
             child: const Text('language:dart'),
             style: ElevatedButton.styleFrom(primary: Colors.deepPurple),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(
-                    _handleController.text, _startDate, _endDate, _sortType,
+                buildUrl(_handleController.text, startDate, endDate, sortType,
                     language: 'dart')),
           ),
           ElevatedButton(
@@ -119,8 +129,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
             style: ElevatedButton.styleFrom(primary: Colors.indigo),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(
-                    _handleController.text, _startDate, _endDate, _sortType,
+                buildUrl(_handleController.text, startDate, endDate, sortType,
                     user: 'flutter')),
           ),
           ElevatedButton(
@@ -128,80 +137,70 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
             style: ElevatedButton.styleFrom(primary: Colors.indigo),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(
-                    _handleController.text, _startDate, _endDate, _sortType,
+                buildUrl(_handleController.text, startDate, endDate, sortType,
                     user: 'dart-lang')),
           ),
           ElevatedButton(
             child: const Text('flutter/codelabs'),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(
-                    _handleController.text, _startDate, _endDate, _sortType,
+                buildUrl(_handleController.text, startDate, endDate, sortType,
                     user: 'flutter', repo: 'codelabs')),
           ),
           ElevatedButton(
             child: const Text('flutter/samples'),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(
-                    _handleController.text, _startDate, _endDate, _sortType,
+                buildUrl(_handleController.text, startDate, endDate, sortType,
                     user: 'flutter', repo: 'samples')),
           ),
           ElevatedButton(
             child: const Text('flutter/flutter'),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(
-                    _handleController.text, _startDate, _endDate, _sortType,
+                buildUrl(_handleController.text, startDate, endDate, sortType,
                     user: 'flutter', repo: 'flutter')),
           ),
           ElevatedButton(
             child: const Text('flutter/website'),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(
-                    _handleController.text, _startDate, _endDate, _sortType,
+                buildUrl(_handleController.text, startDate, endDate, sortType,
                     user: 'flutter', repo: 'website')),
           ),
           ElevatedButton(
             child: const Text('dart-lang/dart-pad'),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(
-                    _handleController.text, _startDate, _endDate, _sortType,
+                buildUrl(_handleController.text, startDate, endDate, sortType,
                     user: 'dart-lang', repo: 'dart-pad')),
           ),
           ElevatedButton(
             child: const Text('dart-lang/dart-services'),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(
-                    _handleController.text, _startDate, _endDate, _sortType,
+                buildUrl(_handleController.text, startDate, endDate, sortType,
                     user: 'dart-lang', repo: 'dart-services')),
           ),
           ElevatedButton(
             child: const Text('dart-lang/samples'),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(
-                    _handleController.text, _startDate, _endDate, _sortType,
+                buildUrl(_handleController.text, startDate, endDate, sortType,
                     user: 'dart-lang', repo: 'samples')),
           ),
           ElevatedButton(
             child: const Text('dart-lang/sdk'),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(
-                    _handleController.text, _startDate, _endDate, _sortType,
+                buildUrl(_handleController.text, startDate, endDate, sortType,
                     user: 'dart-lang', repo: 'sdk')),
           ),
           ElevatedButton(
             child: const Text('dart-lang/site-www'),
             onPressed: () => _checkAndOpen(
                 context,
-                buildUrl(
-                    _handleController.text, _startDate, _endDate, _sortType,
+                buildUrl(_handleController.text, startDate, endDate, sortType,
                     user: 'dart-lang', repo: 'site-www')),
           ),
         ],
@@ -212,6 +211,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final appState = Provider.of<AppState>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -235,7 +235,9 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                   labelText: 'Your GitHub handle',
                 ),
                 controller: _handleController,
-                onChanged: (value) => _saveHandle(value),
+                onChanged: (value) {
+                  appState.setUsername(value);
+                },
               ),
               const SizedBox(height: 16),
               Table(
@@ -259,7 +261,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                         padding: const EdgeInsets.all(8.0),
                         child: Align(
                           alignment: Alignment.centerRight,
-                          child: Text(_format.format(_startDate)),
+                          child: Text(_format.format(appState.startDate)),
                         ),
                       ),
                       Padding(
@@ -272,11 +274,13 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                           onPressed: () async {
                             final newDate = await showDatePicker(
                               context: context,
-                              initialDate: _startDate,
+                              initialDate: appState.startDate,
                               firstDate: DateTime(2019, 1, 1),
                               lastDate: DateTime(2025, 1, 1),
                             );
-                            setState(() => _startDate = newDate ?? _startDate);
+                            if (newDate != null) {
+                              appState.setStartDate(newDate);
+                            }
                           },
                         ),
                       )
@@ -295,7 +299,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                         padding: const EdgeInsets.all(8.0),
                         child: Align(
                           alignment: Alignment.centerRight,
-                          child: Text(_format.format(_endDate)),
+                          child: Text(_format.format(appState.endDate)),
                         ),
                       ),
                       Padding(
@@ -308,11 +312,13 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                           onPressed: () async {
                             final newDate = await showDatePicker(
                               context: context,
-                              initialDate: _endDate,
+                              initialDate: appState.endDate,
                               firstDate: DateTime(2019, 1, 1),
                               lastDate: DateTime(2025, 0, 1),
                             );
-                            setState(() => _endDate = newDate ?? _endDate);
+                            if (newDate != null) {
+                              appState.setEndDate(newDate);
+                            }
                           },
                         ),
                       )
@@ -356,8 +362,12 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                               child: Text('Least recently updated'),
                             ),
                           ],
-                          value: _sortType,
-                          onChanged: (val) => setState(() => _sortType = val!),
+                          value: appState.sortType,
+                          onChanged: (val) {
+                            if (val != null) {
+                              appState.setSortType(val);
+                            }
+                          },
                         ),
                       ),
                       const SizedBox.shrink(),
@@ -366,13 +376,37 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                 ],
               ),
               ..._buildButtonSection(
-                  'Pull requests merged', context, UrlMaker.pullsMerged),
+                'Pull requests merged',
+                appState.startDate,
+                appState.endDate,
+                appState.sortType,
+                context,
+                UrlMaker.pullsMerged,
+              ),
               ..._buildButtonSection(
-                  'Pull requests reviewed', context, UrlMaker.pullsReviewed),
+                'Pull requests reviewed',
+                appState.startDate,
+                appState.endDate,
+                appState.sortType,
+                context,
+                UrlMaker.pullsReviewed,
+              ),
               ..._buildButtonSection(
-                  'Issues created', context, UrlMaker.issuesCreated),
+                'Issues created',
+                appState.startDate,
+                appState.endDate,
+                appState.sortType,
+                context,
+                UrlMaker.issuesCreated,
+              ),
               ..._buildButtonSection(
-                  'Issues involved in', context, UrlMaker.issuesInvolved),
+                'Issues involved in',
+                appState.startDate,
+                appState.endDate,
+                appState.sortType,
+                context,
+                UrlMaker.issuesInvolved,
+              ),
             ],
           ),
         ),
@@ -491,5 +525,32 @@ class UrlMaker {
         'updated%3A${_formatter.format(start)}..'
         '${_formatter.format(end)}+';
     return addCommonFilters(url, sortType, language, user, repo);
+  }
+}
+
+class AlertPopup extends StatelessWidget {
+  final String title;
+  final String message;
+
+  const AlertPopup({
+    this.title = '',
+    this.message = '',
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(title),
+      content: SingleChildScrollView(
+        child: Text(message),
+      ),
+      actions: [
+        TextButton(
+          child: const Text('Got it'),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ],
+    );
   }
 }
