@@ -7,7 +7,7 @@ import 'github.dart';
 
 void main() {
   runApp(
-    MaterialApp(
+    const MaterialApp(
       title: 'GitHub search linker',
       home: GitHubLinksScreen(),
     ),
@@ -15,20 +15,22 @@ void main() {
 }
 
 class GitHubLinksScreen extends StatefulWidget {
+  const GitHubLinksScreen({Key? key}) : super(key: key);
+
   @override
   _GitHubLinksScreenState createState() => _GitHubLinksScreenState();
 }
 
 extension BoldableTextStyle on TextStyle {
   TextStyle makeBold() {
-    return this.copyWith(fontWeight: FontWeight.bold);
+    return copyWith(fontWeight: FontWeight.bold);
   }
 }
 
 class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
   DateTime _startDate = DateTime(2020, 10, 1);
   DateTime _endDate = DateTime(2021, 3, 31);
-  TextEditingController _handleController = TextEditingController();
+  final _handleController = TextEditingController();
   SortType _sortType = SortType.newest;
 
   static final _format = DateFormat.yMMMd();
@@ -49,48 +51,40 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
 
   Future<void> _checkAndOpen(BuildContext context, String url) async {
     if (_handleController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('You need to enter a handle first!'),
       ));
     } else {
       if (await launcher.canLaunch(url)) {
         await launcher.launch(url);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Could not open link! :('),
         ));
       }
     }
   }
 
-//  Future<void> _launchOAuth() async {
-//    final url = 'https://github.com/login/oauth/authorize?'
-//    'client_id=$clientId'
-//    '&redirect_uri=${Uri.encodeComponent('http://localhost:55827/')}'
-//    '&state=${getRandomString(20)}';
-//
-//    if (await launcher.canLaunch(url)) {
-//      launcher.launch(url);
-//    }
-//  }
-//
   List<Widget> _buildButtonSection(
-      String title, BuildContext context, UrlBuilder buildUrl) {
+    String title,
+    BuildContext context,
+    UrlBuilder buildUrl,
+  ) {
     final theme = Theme.of(context);
 
     return [
-      SizedBox(height: 32),
+      const SizedBox(height: 32),
       Text(
         title,
         style: theme.textTheme.headline6,
       ),
-      SizedBox(height: 16),
+      const SizedBox(height: 16),
       Wrap(
         runSpacing: 8,
         spacing: 8,
         children: [
           ElevatedButton(
-            child: Text('*'),
+            child: const Text('*'),
             style: ElevatedButton.styleFrom(primary: Colors.green),
             onPressed: () => _checkAndOpen(
                 context,
@@ -98,7 +92,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                     _handleController.text, _startDate, _endDate, _sortType)),
           ),
           ElevatedButton(
-            child: Text('language:dart'),
+            child: const Text('language:dart'),
             style: ElevatedButton.styleFrom(primary: Colors.deepPurple),
             onPressed: () => _checkAndOpen(
                 context,
@@ -107,7 +101,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                     language: 'dart')),
           ),
           ElevatedButton(
-            child: Text('flutter/*'),
+            child: const Text('flutter/*'),
             style: ElevatedButton.styleFrom(primary: Colors.indigo),
             onPressed: () => _checkAndOpen(
                 context,
@@ -116,7 +110,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                     user: 'flutter')),
           ),
           ElevatedButton(
-            child: Text('dart-lang/*'),
+            child: const Text('dart-lang/*'),
             style: ElevatedButton.styleFrom(primary: Colors.indigo),
             onPressed: () => _checkAndOpen(
                 context,
@@ -125,7 +119,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                     user: 'dart-lang')),
           ),
           ElevatedButton(
-            child: Text('flutter/codelabs'),
+            child: const Text('flutter/codelabs'),
             onPressed: () => _checkAndOpen(
                 context,
                 buildUrl(
@@ -133,7 +127,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                     user: 'flutter', repo: 'codelabs')),
           ),
           ElevatedButton(
-            child: Text('flutter/samples'),
+            child: const Text('flutter/samples'),
             onPressed: () => _checkAndOpen(
                 context,
                 buildUrl(
@@ -141,7 +135,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                     user: 'flutter', repo: 'samples')),
           ),
           ElevatedButton(
-            child: Text('flutter/flutter'),
+            child: const Text('flutter/flutter'),
             onPressed: () => _checkAndOpen(
                 context,
                 buildUrl(
@@ -149,7 +143,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                     user: 'flutter', repo: 'flutter')),
           ),
           ElevatedButton(
-            child: Text('flutter/website'),
+            child: const Text('flutter/website'),
             onPressed: () => _checkAndOpen(
                 context,
                 buildUrl(
@@ -157,7 +151,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                     user: 'flutter', repo: 'website')),
           ),
           ElevatedButton(
-            child: Text('dart-lang/dart-pad'),
+            child: const Text('dart-lang/dart-pad'),
             onPressed: () => _checkAndOpen(
                 context,
                 buildUrl(
@@ -165,7 +159,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                     user: 'dart-lang', repo: 'dart-pad')),
           ),
           ElevatedButton(
-            child: Text('dart-lang/dart-services'),
+            child: const Text('dart-lang/dart-services'),
             onPressed: () => _checkAndOpen(
                 context,
                 buildUrl(
@@ -173,7 +167,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                     user: 'dart-lang', repo: 'dart-services')),
           ),
           ElevatedButton(
-            child: Text('dart-lang/samples'),
+            child: const Text('dart-lang/samples'),
             onPressed: () => _checkAndOpen(
                 context,
                 buildUrl(
@@ -181,7 +175,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                     user: 'dart-lang', repo: 'samples')),
           ),
           ElevatedButton(
-            child: Text('dart-lang/sdk'),
+            child: const Text('dart-lang/sdk'),
             onPressed: () => _checkAndOpen(
                 context,
                 buildUrl(
@@ -189,7 +183,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                     user: 'dart-lang', repo: 'sdk')),
           ),
           ElevatedButton(
-            child: Text('dart-lang/site-www'),
+            child: const Text('dart-lang/site-www'),
             onPressed: () => _checkAndOpen(
                 context,
                 buildUrl(
@@ -207,7 +201,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('GitHub Search Linker'),
+        title: const Text('GitHub Search Linker'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -215,30 +209,13 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-//              Align(
-//                alignment: Alignment.centerRight,
-//                child: ElevatedButton(
-//                  style: ElevatedButton.styleFrom(primary: Colors.green),
-//                  child: Row(
-//                    mainAxisSize: MainAxisSize.min,
-//                    children: [
-//                      Padding(
-//                        padding: const EdgeInsets.fromLTRB(0, 5, 8, 6),
-//                        child: Icon(FontAwesomeIcons.github),
-//                      ),
-//                      Text('Sign in'),
-//                    ],
-//                  ),
-//                  onPressed: () => _launchOAuth(),
-//                ),
-//              ),
               Text(
                 'Your info',
                 style: theme.textTheme.headline6,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextField(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   filled: true,
                   hintText: 'Enter a title...',
                   labelText: 'Your GitHub handle',
@@ -246,9 +223,9 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                 controller: _handleController,
                 onChanged: (value) => _saveHandle(value),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Table(
-                columnWidths: {
+                columnWidths: const {
                   0: IntrinsicColumnWidth(),
                   1: IntrinsicColumnWidth(),
                   2: IntrinsicColumnWidth(),
@@ -274,8 +251,8 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: ElevatedButton(
-                          child: Padding(
-                            padding: const EdgeInsets.all(4.0),
+                          child: const Padding(
+                            padding: EdgeInsets.all(4.0),
                             child: Icon(Icons.date_range),
                           ),
                           onPressed: () async {
@@ -310,8 +287,8 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: ElevatedButton(
-                          child: Padding(
-                            padding: const EdgeInsets.all(4.0),
+                          child: const Padding(
+                            padding: EdgeInsets.all(4.0),
                             child: Icon(Icons.date_range),
                           ),
                           onPressed: () async {
@@ -339,7 +316,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: DropdownButton<SortType>(
-                          items: [
+                          items: const [
                             DropdownMenuItem(
                               value: SortType.newest,
                               child: Text('Newest'),
@@ -369,7 +346,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
                           onChanged: (val) => setState(() => _sortType = val!),
                         ),
                       ),
-                      SizedBox.shrink(),
+                      const SizedBox.shrink(),
                     ],
                   )
                 ],
@@ -390,7 +367,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
   }
 }
 
-typedef String UrlBuilder(
+typedef UrlBuilder = String Function(
   String handle,
   DateTime start,
   DateTime end,
