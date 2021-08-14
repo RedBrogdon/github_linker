@@ -1,15 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 
+import 'app_state.dart';
 import 'github.dart';
 
 void main() {
+  final appState = AppState()..load();
+
   runApp(
-    MaterialApp(
-      title: 'GitHub search linker',
-      home: GitHubLinksScreen(),
+    ChangeNotifierProvider.value(
+      value: appState,
+      child: MaterialApp(
+        title: 'GitHub search linker',
+        home: GitHubLinksScreen(),
+        onGenerateRoute: (RouteSettings settings) {
+          if (settings.name != null && settings.name!.startsWith('/callback')) {
+            // Remove the hash and extra slash from the URL so that the normal
+            // url parsing tech can be used.
+            final modifiedUrl = Uri.base.toString().replaceFirst('#/', '');
+            final params = Map<String, String>.from(
+                Uri.parse(modifiedUrl).queryParameters);
+            if (params.containsKey('code')) {
+              appState.setGitHubAuthCode(params['code']!);
+            }
+          }
+
+          // Return null to direct navigation back to the home route.
+          return null;
+        },
+      ),
     ),
   );
 }
@@ -63,17 +86,17 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
     }
   }
 
-//  Future<void> _launchOAuth() async {
-//    final url = 'https://github.com/login/oauth/authorize?'
-//    'client_id=$clientId'
-//    '&redirect_uri=${Uri.encodeComponent('http://localhost:55827/')}'
-//    '&state=${getRandomString(20)}';
-//
-//    if (await launcher.canLaunch(url)) {
-//      launcher.launch(url);
-//    }
-//  }
-//
+  Future<void> _launchOAuth() async {
+    final url = 'https://github.com/login/oauth/authorize?'
+        'client_id=$clientId'
+        '&redirect_uri=${Uri.encodeComponent('http://localhost:55827/')}'
+        '&state=${getRandomString(20)}';
+
+    if (await launcher.canLaunch(url)) {
+      launcher.launch(url);
+    }
+  }
+
   List<Widget> _buildButtonSection(
       String title, BuildContext context, UrlBuilder buildUrl) {
     final theme = Theme.of(context);
@@ -215,36 +238,47 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-//              Align(
-//                alignment: Alignment.centerRight,
-//                child: ElevatedButton(
-//                  style: ElevatedButton.styleFrom(primary: Colors.green),
-//                  child: Row(
-//                    mainAxisSize: MainAxisSize.min,
-//                    children: [
-//                      Padding(
-//                        padding: const EdgeInsets.fromLTRB(0, 5, 8, 6),
-//                        child: Icon(FontAwesomeIcons.github),
-//                      ),
-//                      Text('Sign in'),
-//                    ],
-//                  ),
-//                  onPressed: () => _launchOAuth(),
-//                ),
-//              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Consumer<AppState>(
+                  builder: (context, state, child) {
+                    if (state.gitHubAuthCode != null) {
+                      return Text('Signed in!');
+                    } else {
+                      return ElevatedButton(
+                        style: ElevatedButton.styleFrom(primary: Colors.green),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 5, 8, 6),
+                              child: Icon(FontAwesomeIcons.github),
+                            ),
+                            Text('Sign in'),
+                          ],
+                        ),
+                        onPressed: () => _launchOAuth(),
+                      );
+                    }
+                  },
+                ),
+              ),
               Text(
                 'Your info',
                 style: theme.textTheme.headline6,
               ),
               SizedBox(height: 16),
-              TextField(
-                decoration: InputDecoration(
-                  filled: true,
-                  hintText: 'Enter a title...',
-                  labelText: 'Your GitHub handle',
+              SizedBox(
+                width: 300,
+                child: TextField(
+                  decoration: InputDecoration(
+                    filled: true,
+                    hintText: 'Enter a title...',
+                    labelText: 'Your GitHub handle',
+                  ),
+                  controller: _handleController,
+                  onChanged: (value) => _saveHandle(value),
                 ),
-                controller: _handleController,
-                onChanged: (value) => _saveHandle(value),
               ),
               SizedBox(height: 16),
               Table(
@@ -436,7 +470,7 @@ class UrlMaker {
     }
 
     if (language != null) {
-      sb.write('language%3A$language+)');
+      sb.write('language%3A$language+');
     }
 
     return sb.toString();
