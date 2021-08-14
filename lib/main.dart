@@ -38,10 +38,24 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
   @override
   void initState() {
     super.initState();
+
     SharedPreferences.getInstance().then((prefs) async {
       final handle = prefs.getString('handle') ?? '';
       _handleController.text = handle;
     });
+
+    final now = DateTime.now();
+
+    if (now.month < 4) {
+      _startDate = DateTime(now.year - 1, 10, 1);
+      _endDate = DateTime(now.year, 3, 31);
+    } else if (now.month < 10) {
+      _startDate = DateTime(now.year, 4, 1);
+      _endDate = DateTime(now.year, 9, 30);
+    } else {
+      _startDate = DateTime(now.year, 10, 1);
+      _endDate = DateTime(now.year + 1, 3, 31);
+    }
   }
 
   Future<void> _saveHandle(String handle) async {
