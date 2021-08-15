@@ -1,15 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum SortType {
-  newest,
-  oldest,
-  mostCommented,
-  leastCommented,
-  mostRecentlyUpdated,
-  leastRecentlyUpdated,
-}
-
 class AppState extends ChangeNotifier {
   String _username = '';
 
@@ -21,9 +12,14 @@ class AppState extends ChangeNotifier {
 
   late DateTime _endDate;
 
+  String? _githubApiKey;
+
+  bool _githubTokenRequestInProgress = false;
+
   AppState() {
     SharedPreferences.getInstance().then((prefs) {
       _username = prefs.getString('username') ?? '';
+      _githubApiKey = prefs.getString('githubApiKey');
       _hasSeenPopup = prefs.getBool('hasSeenPopup') ?? false;
       final sortTypeIndex = prefs.getInt('sortType') ?? 0;
       sortTypeIndex.clamp(0, SortType.values.length - 1);
@@ -45,28 +41,46 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  DateTime get endDate => _endDate;
+
+  String? get githubApiKey => _githubApiKey;
+
+  bool get githubTokenRequestInProgress => _githubTokenRequestInProgress;
+
   bool? get hasSeenPopup => _hasSeenPopup;
 
-  String get username => _username;
+  SortType get sortType => _sortType;
 
   DateTime get startDate => _startDate;
 
-  DateTime get endDate => _endDate;
+  String get username => _username;
 
-  SortType get sortType => _sortType;
+  Future<void> setEndDate(DateTime val) async {
+    _endDate = val;
+    notifyListeners();
+  }
+
+  Future<void> setGithubApiKey(String? val) async {
+    _githubApiKey = val;
+    SharedPreferences.getInstance().then((prefs) {
+      if (val == null) {
+        prefs.remove('githubApiKey');
+      } else {
+        prefs.setString('githubApiKey', val);
+      }
+    });
+    notifyListeners();
+  }
+
+  Future<void> setGithubTokenRequestInProgress(bool val) async {
+    _githubTokenRequestInProgress = val;
+    notifyListeners();
+  }
 
   Future<void> setHasSeenPopup(bool val) async {
     _hasSeenPopup = val;
     SharedPreferences.getInstance().then((prefs) {
       prefs.setBool('hasSeenPopup', val);
-    });
-    notifyListeners();
-  }
-
-  Future<void> setUsername(String val) async {
-    _username = val;
-    SharedPreferences.getInstance().then((prefs) {
-      prefs.setString('username', val);
     });
     notifyListeners();
   }
@@ -84,8 +98,20 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setEndDate(DateTime val) async {
-    _endDate = val;
+  Future<void> setUsername(String val) async {
+    _username = val;
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setString('username', val);
+    });
     notifyListeners();
   }
+}
+
+enum SortType {
+  newest,
+  oldest,
+  mostCommented,
+  leastCommented,
+  mostRecentlyUpdated,
+  leastRecentlyUpdated,
 }
