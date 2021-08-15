@@ -16,29 +16,10 @@ void main() async {
 
   final appState = AppState();
 
-  print(Uri.base.toString());
-
   // This code determines if the app has loaded as the result of an OAuth2
   // callback from GitHub. If so, the access code is used to get an API token.
   if (Uri.base.toString().startsWith('http://localhost:8080/callback')) {
-    appState.setGithubTokenRequestInProgress(true);
-    final code = Uri.base.queryParameters['code']!;
-    print(code);
-    const requestUrl = 'https://github.com/login/oauth/access_token';
-    final response = await http.post(
-      Uri.parse(requestUrl),
-      headers: {
-        'accept': 'application/json',
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'client_id': GithubKeys.clientId,
-        'client_secret': GithubKeys.clientSecret,
-        'code': code,
-      }),
-    );
-    print(response.statusCode);
-    print(response.body);
+    // Send request to passthrough server.
   }
 
   runApp(
