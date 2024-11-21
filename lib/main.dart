@@ -3,30 +3,35 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 
+import 'theme.dart';
+
 void main() {
   runApp(
     MaterialApp(
       title: 'GitHub search linker',
       home: GitHubLinksScreen(),
+      theme: ThemeData(colorScheme: CustomMaterialTheme.lightScheme()),
     ),
   );
 }
 
 class GitHubLinksScreen extends StatefulWidget {
+  const GitHubLinksScreen({super.key});
+
   @override
-  _GitHubLinksScreenState createState() => _GitHubLinksScreenState();
+  GitHubLinksScreenState createState() => GitHubLinksScreenState();
 }
 
 extension BoldableTextStyle on TextStyle {
   TextStyle makeBold() {
-    return this.copyWith(fontWeight: FontWeight.bold);
+    return copyWith(fontWeight: FontWeight.bold);
   }
 }
 
-class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
+class GitHubLinksScreenState extends State<GitHubLinksScreen> {
   DateTime _startDate = DateTime(2020, 10, 1);
   DateTime _endDate = DateTime(2021, 3, 31);
-  TextEditingController _handleController = TextEditingController();
+  final TextEditingController _handleController = TextEditingController();
 
   static final _format = DateFormat.yMMMd();
 
@@ -50,12 +55,14 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
         content: Text('You need to enter a handle first!'),
       ));
     } else {
-      if (await launcher.canLaunch(url)) {
-        await launcher.launch(url);
+      if (await launcher.canLaunchUrl(Uri.parse(url))) {
+        await launcher.launchUrl(Uri.parse(url));
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Could not open link! :('),
-        ));
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Could not open link! :('),
+          ));
+        }
       }
     }
   }
@@ -68,100 +75,91 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
       SizedBox(height: 32),
       Text(
         title,
-        style: theme.textTheme.headline6,
+        style: theme.textTheme.titleLarge,
       ),
       SizedBox(height: 16),
       Wrap(
         runSpacing: 8,
         spacing: 8,
         children: [
-          ElevatedButton(
-            child: Text('*'),
-            style: ElevatedButton.styleFrom(primary: Colors.green),
+          FilledButton(
+            style: FilledButton.styleFrom(
+                backgroundColor: theme.colorScheme.secondary),
             onPressed: () => _checkAndOpen(context,
                 buildUrl(_handleController.text, _startDate, _endDate)),
+            child: Text('*'),
           ),
-          ElevatedButton(
-            child: Text('language:dart'),
-            style: ElevatedButton.styleFrom(primary: Colors.deepPurple),
-            onPressed: () => _checkAndOpen(
-                context,
-                buildUrl(_handleController.text, _startDate, _endDate,
-                    language: 'dart')),
-          ),
-          ElevatedButton(
-            child: Text('flutter/*'),
-            style: ElevatedButton.styleFrom(primary: Colors.indigo),
+          FilledButton(
             onPressed: () => _checkAndOpen(
                 context,
                 buildUrl(_handleController.text, _startDate, _endDate,
                     user: 'flutter')),
+            child: Text('flutter/*'),
           ),
-          ElevatedButton(
-            child: Text('dart-lang/*'),
-            style: ElevatedButton.styleFrom(primary: Colors.indigo),
+          FilledButton(
             onPressed: () => _checkAndOpen(
                 context,
                 buildUrl(_handleController.text, _startDate, _endDate,
                     user: 'dart-lang')),
+            child: Text('dart-lang/*'),
           ),
-          ElevatedButton(
+          OutlinedButton(
             child: Text('flutter/codelabs'),
             onPressed: () => _checkAndOpen(
                 context,
                 buildUrl(_handleController.text, _startDate, _endDate,
                     user: 'flutter', repo: 'codelabs')),
           ),
-          ElevatedButton(
+          OutlinedButton(
             child: Text('flutter/samples'),
             onPressed: () => _checkAndOpen(
                 context,
                 buildUrl(_handleController.text, _startDate, _endDate,
                     user: 'flutter', repo: 'samples')),
           ),
-          ElevatedButton(
+          OutlinedButton(
             child: Text('flutter/flutter'),
             onPressed: () => _checkAndOpen(
                 context,
                 buildUrl(_handleController.text, _startDate, _endDate,
                     user: 'flutter', repo: 'flutter')),
           ),
-          ElevatedButton(
+          OutlinedButton(
+            child: Text('flutter/games'),
+            onPressed: () => _checkAndOpen(
+                context,
+                buildUrl(_handleController.text, _startDate, _endDate,
+                    user: 'flutter', repo: 'games')),
+          ),
+          OutlinedButton(
             child: Text('flutter/website'),
             onPressed: () => _checkAndOpen(
                 context,
                 buildUrl(_handleController.text, _startDate, _endDate,
                     user: 'flutter', repo: 'website')),
           ),
-          ElevatedButton(
+          OutlinedButton(
             child: Text('dart-lang/dart-pad'),
             onPressed: () => _checkAndOpen(
                 context,
                 buildUrl(_handleController.text, _startDate, _endDate,
                     user: 'dart-lang', repo: 'dart-pad')),
           ),
-          ElevatedButton(
-            child: Text('dart-lang/dart-services'),
-            onPressed: () => _checkAndOpen(
-                context,
-                buildUrl(_handleController.text, _startDate, _endDate,
-                    user: 'dart-lang', repo: 'dart-services')),
-          ),
-          ElevatedButton(
+          OutlinedButton(
             child: Text('dart-lang/samples'),
             onPressed: () => _checkAndOpen(
                 context,
                 buildUrl(_handleController.text, _startDate, _endDate,
                     user: 'dart-lang', repo: 'samples')),
           ),
-          ElevatedButton(
+          OutlinedButton(
             child: Text('dart-lang/sdk'),
             onPressed: () => _checkAndOpen(
                 context,
                 buildUrl(_handleController.text, _startDate, _endDate,
                     user: 'dart-lang', repo: 'sdk')),
           ),
-          ElevatedButton(
+          OutlinedButton(
             child: Text('dart-lang/site-www'),
             onPressed: () => _checkAndOpen(
                 context,
@@ -181,118 +179,118 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
       appBar: AppBar(
         title: Text('GitHub Search Linker'),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Your info',
-                style: theme.textTheme.headline6,
-              ),
-              SizedBox(height: 16),
-              TextField(
-                decoration: InputDecoration(
-                  filled: true,
-                  hintText: 'Enter a title...',
-                  labelText: 'Your GitHub handle',
+      body: SizedBox.expand(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Your info',
+                  style: theme.textTheme.titleLarge,
                 ),
-                controller: _handleController,
-                onChanged: (value) => _saveHandle(value),
-              ),
-              SizedBox(height: 16),
-              Table(
-                columnWidths: {
-                  0: IntrinsicColumnWidth(),
-                  1: IntrinsicColumnWidth(),
-                  2: IntrinsicColumnWidth(),
-                },
-                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                children: [
-                  TableRow(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          'Start date for perf:',
-                          style: theme.textTheme.bodyText2?.makeBold(),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Text(_format.format(_startDate)),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ElevatedButton(
-                          child: Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: Icon(Icons.date_range),
-                          ),
-                          onPressed: () async {
-                            final newDate = await showDatePicker(
-                              context: context,
-                              initialDate: _startDate,
-                              firstDate: DateTime(2019, 1, 1),
-                              lastDate: DateTime(2025, 1, 1),
-                            );
-                            setState(() => _startDate = newDate ?? _startDate);
-                          },
-                        ),
-                      )
-                    ],
+                SizedBox(height: 16),
+                SizedBox(
+                  width: 300,
+                  child: TextField(
+                    decoration: InputDecoration(
+                      filled: true,
+                      hintText: 'Enter a title...',
+                      labelText: 'Your GitHub handle',
+                    ),
+                    controller: _handleController,
+                    onChanged: (value) => _saveHandle(value),
                   ),
-                  TableRow(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          'End date for perf:',
-                          style: theme.textTheme.bodyText2?.makeBold(),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Text(_format.format(_endDate)),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ElevatedButton(
-                          child: Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: Icon(Icons.date_range),
+                ),
+                SizedBox(height: 16),
+                Table(
+                  columnWidths: {
+                    0: IntrinsicColumnWidth(),
+                    1: IntrinsicColumnWidth(),
+                    2: IntrinsicColumnWidth(),
+                  },
+                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                  children: [
+                    TableRow(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            'Start date for perf:',
+                            style: theme.textTheme.bodyMedium?.makeBold(),
                           ),
-                          onPressed: () async {
-                            final newDate = await showDatePicker(
-                              context: context,
-                              initialDate: _endDate,
-                              firstDate: DateTime(2019, 1, 1),
-                              lastDate: DateTime(2025, 0, 1),
-                            );
-                            setState(() => _endDate = newDate ?? _endDate);
-                          },
                         ),
-                      )
-                    ],
-                  ),
-                ],
-              ),
-              ..._buildButtonSection(
-                  'Pull requests merged', context, UrlMaker.pullsMerged),
-              ..._buildButtonSection(
-                  'Pull requests reviewed', context, UrlMaker.pullsReviewed),
-              ..._buildButtonSection(
-                  'Issues created', context, UrlMaker.issuesCreated),
-              ..._buildButtonSection(
-                  'Issues involved in', context, UrlMaker.issuesInvolved),
-            ],
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(_format.format(_startDate)),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: FilledButton(
+                            child: Icon(Icons.date_range),
+                            onPressed: () async {
+                              final newDate = await showDatePicker(
+                                context: context,
+                                initialDate: _startDate,
+                                firstDate: DateTime(2019, 1, 1),
+                                lastDate: DateTime(2025, 1, 1),
+                              );
+                              setState(
+                                  () => _startDate = newDate ?? _startDate);
+                            },
+                          ),
+                        )
+                      ],
+                    ),
+                    TableRow(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            'End date for perf:',
+                            style: theme.textTheme.bodyMedium?.makeBold(),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(_format.format(_endDate)),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: FilledButton(
+                            child: Icon(Icons.date_range),
+                            onPressed: () async {
+                              final newDate = await showDatePicker(
+                                context: context,
+                                initialDate: _endDate,
+                                firstDate: DateTime(2019, 1, 1),
+                                lastDate: DateTime(2025, 0, 1),
+                              );
+                              setState(() => _endDate = newDate ?? _endDate);
+                            },
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+                ..._buildButtonSection(
+                    'Pull requests merged', context, UrlMaker.pullsMerged),
+                ..._buildButtonSection(
+                    'Pull requests reviewed', context, UrlMaker.pullsReviewed),
+                ..._buildButtonSection(
+                    'Issues created', context, UrlMaker.issuesCreated),
+                ..._buildButtonSection(
+                    'Issues involved in', context, UrlMaker.issuesInvolved),
+              ],
+            ),
           ),
         ),
       ),
@@ -300,7 +298,7 @@ class _GitHubLinksScreenState extends State<GitHubLinksScreen> {
   }
 }
 
-typedef String UrlBuilder(
+typedef UrlBuilder = String Function(
   String handle,
   DateTime start,
   DateTime end, {
