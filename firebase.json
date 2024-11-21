@@ -6,6 +6,21 @@
       "**/.*",
       "**/node_modules/**"
     ],
+    "headers": [
+      {
+        "source": "**/*",
+        "headers": [
+          {
+            "key": "cross-origin-opener-policy",
+            "value": "same-origin"
+          },
+          {
+            "key": "cross-origin-embedder-policy",
+            "value": "require-corp"
+          }
+        ]
+      }
+    ],
     "rewrites": [
       {
         "source": "**",
