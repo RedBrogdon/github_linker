@@ -29,8 +29,8 @@ extension BoldableTextStyle on TextStyle {
 }
 
 class GitHubLinksScreenState extends State<GitHubLinksScreen> {
-  DateTime _startDate = DateTime(2020, 10, 1);
-  DateTime _endDate = DateTime(2021, 3, 31);
+  DateTime _startDate = DateTime(DateTime.now().year, 1, 1);
+  DateTime _endDate = DateTime(DateTime.now().year, 12, 31);
   final TextEditingController _handleController = TextEditingController();
 
   static final _format = DateFormat.yMMMd();
@@ -209,6 +209,8 @@ class GitHubLinksScreenState extends State<GitHubLinksScreen> {
                     0: IntrinsicColumnWidth(),
                     1: IntrinsicColumnWidth(),
                     2: IntrinsicColumnWidth(),
+                    3: IntrinsicColumnWidth(),
+                    4: IntrinsicColumnWidth(),
                   },
                   defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                   children: [
@@ -217,7 +219,7 @@ class GitHubLinksScreenState extends State<GitHubLinksScreen> {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            'Start date for perf:',
+                            'Start date:',
                             style: theme.textTheme.bodyMedium?.makeBold(),
                           ),
                         ),
@@ -243,7 +245,7 @@ class GitHubLinksScreenState extends State<GitHubLinksScreen> {
                                   () => _startDate = newDate ?? _startDate);
                             },
                           ),
-                        )
+                        ),
                       ],
                     ),
                     TableRow(
@@ -251,7 +253,7 @@ class GitHubLinksScreenState extends State<GitHubLinksScreen> {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            'End date for perf:',
+                            'End date:',
                             style: theme.textTheme.bodyMedium?.makeBold(),
                           ),
                         ),
@@ -270,13 +272,13 @@ class GitHubLinksScreenState extends State<GitHubLinksScreen> {
                               final newDate = await showDatePicker(
                                 context: context,
                                 initialDate: _endDate,
-                                firstDate: DateTime(2019, 1, 1),
-                                lastDate: DateTime(2025, 0, 1),
+                                firstDate: DateTime(2018, 1, 1),
+                                lastDate: DateTime(DateTime.now().year, 12, 31),
                               );
                               setState(() => _endDate = newDate ?? _endDate);
                             },
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ],
