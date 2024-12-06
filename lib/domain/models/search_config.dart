@@ -6,13 +6,14 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'search_config.freezed.dart';
 
-enum TimeOfDay {
-  any,
-  morning,
-  afternoon,
-  evening,
-  night,
-}
+const defaultStartDateYear = 2024;
+const defaultStartDateMonth = 1;
+const defaultStartDateDay = 1;
+const defaultEndDateYear = 2024;
+const defaultEndDateMonth = 12;
+const defaultEndDateDay = 31;
+const defaultHandle = '';
+const defaultPreviousHandles = <String>[];
 
 @freezed
 class SearchConfig with _$SearchConfig {

@@ -5,7 +5,7 @@
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../utils/result.dart';
+import '../../../utils/result.dart';
 
 class SharedPreferencesService {
   static const _endDateKey = 'END_DATE';
@@ -18,7 +18,7 @@ class SharedPreferencesService {
     return _fetchDateTime(_endDateKey);
   }
 
-  Future<Result<void>> saveEndDate(String? endDate) async {
+  Future<Result<void>> saveEndDate(DateTime? endDate) async {
     return _saveDateTime(_endDateKey, endDate);
   }
 
@@ -26,7 +26,7 @@ class SharedPreferencesService {
     return _fetchDateTime(_startDateKey);
   }
 
-  Future<Result<void>> saveStartDate(String? startDate) async {
+  Future<Result<void>> saveStartDate(DateTime? startDate) async {
     return _saveDateTime(_startDateKey, startDate);
   }
 
@@ -91,15 +91,16 @@ class SharedPreferencesService {
     }
   }
 
-  Future<Result<void>> _saveDateTime(String key, String? dateTime) async {
+  Future<Result<void>> _saveDateTime(String key, DateTime? date) async {
     try {
       final sharedPreferences = await SharedPreferences.getInstance();
-      if (dateTime == null) {
+      if (date == null) {
         _log.finer('Removed $key');
         await sharedPreferences.remove(key);
       } else {
         _log.finer('Replaced $key');
-        await sharedPreferences.setString(key, dateTime);
+        await sharedPreferences.setString(
+            key, '${date.year}-${date.month}-${date.day}');
       }
       return Result.ok(null);
     } on Exception catch (e) {
