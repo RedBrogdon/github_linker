@@ -24,25 +24,25 @@ class SearchConfigRepositoryLocal implements SearchConfigRepository {
   Future<Result<SearchConfig?>> getSearchConfig() async {
     try {
       final endDate = switch (await _service.fetchDateTime(_endDateKey)) {
-        Ok o => o.value,
+        Ok o when o.value != null => o.value,
         _ =>
           DateTime(DateTime.now().year, defaultEndDateMonth, defaultEndDateDay),
       };
 
       final startDate = switch (await _service.fetchDateTime(_startDateKey)) {
-        Ok o => o.value,
+        Ok o when o.value != null => o.value,
         _ => DateTime(
             DateTime.now().year, defaultStartDateMonth, defaultStartDateDay),
       };
 
       final handle = switch (await _service.fetchString(_handleKey)) {
-        Ok o => o.value,
+        Ok o when o.value != null => o.value,
         _ => defaultHandle,
       };
 
       final previousHandles =
           switch (await _service.fetchStringList(_previousHandlesKey)) {
-        Ok o => o.value,
+        Ok o when o.value != null => o.value,
         _ => defaultPreviousHandles,
       };
 
