@@ -9,6 +9,11 @@ import 'search_config_repository.dart';
 
 /// Local implementation of SearchConfigRepository. Uses shared preferences.
 class SearchConfigRepositoryLocal implements SearchConfigRepository {
+  static const _endDateKey = 'END_DATE';
+  static const _startDateKey = 'START_DATE';
+  static const _handleKey = 'HANDLE';
+  static const _previousHandlesKey = 'PREVIOUS_HANDLES';
+
   SearchConfigRepositoryLocal({
     required SharedPreferencesService service,
   }) : _service = service;
@@ -18,11 +23,12 @@ class SearchConfigRepositoryLocal implements SearchConfigRepository {
   @override
   Future<Result<SearchConfig?>> getSearchConfig() async {
     try {
-      final endDate = (await _service.fetchEndDate()).asOk.value;
-      final startDate = (await _service.fetchStartDate()).asOk.value;
-      final handle = (await _service.fetchHandle()).asOk.value;
+      final endDate = (await _service.fetchDateTime(_endDateKey)).asOk.value;
+      final startDate =
+          (await _service.fetchDateTime(_startDateKey)).asOk.value;
+      final handle = (await _service.fetchString(_handleKey)).asOk.value;
       final previousHandles =
-          (await _service.fetchPreviousHandles()).asOk.value;
+          (await _service.fetchStringList(_previousHandlesKey)).asOk.value;
 
       final config = SearchConfig(
         endDate: endDate ??
@@ -44,10 +50,11 @@ class SearchConfigRepositoryLocal implements SearchConfigRepository {
   @override
   Future<Result<void>> setSearchConfig(SearchConfig? config) async {
     try {
-      await _service.saveEndDate(config?.endDate);
-      await _service.saveStartDate(config?.startDate);
-      await _service.saveHandle(config?.handle);
-      await _service.savePreviousHandles(config?.previousHandles);
+      await _service.saveDateTime(_endDateKey, config?.endDate);
+      await _service.saveDateTime(_startDateKey, config?.startDate);
+      await _service.saveString(_handleKey, config?.handle);
+      await _service.saveStringList(
+          _previousHandlesKey, config?.previousHandles);
       return Result.ok(null);
     } on Exception catch (error) {
       return Result.error(error);

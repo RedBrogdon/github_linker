@@ -8,116 +8,103 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../utils/result.dart';
 
 class SharedPreferencesService {
-  static const _endDateKey = 'END_DATE';
-  static const _startDateKey = 'START_DATE';
-  static const _handleKey = 'HANDLE';
-  static const _previousHandlesKey = 'PREVIOUS_HANDLES';
   final _log = Logger('SharedPreferencesService');
 
-  Future<Result<DateTime?>> fetchEndDate() async {
-    return _fetchDateTime(_endDateKey);
-  }
-
-  Future<Result<void>> saveEndDate(DateTime? endDate) async {
-    return _saveDateTime(_endDateKey, endDate);
-  }
-
-  Future<Result<DateTime?>> fetchStartDate() async {
-    return _fetchDateTime(_startDateKey);
-  }
-
-  Future<Result<void>> saveStartDate(DateTime? startDate) async {
-    return _saveDateTime(_startDateKey, startDate);
-  }
-
-  Future<Result<String?>> fetchHandle() async {
+  Future<Result<String?>> fetchString(String key) async {
     try {
       final sharedPreferences = await SharedPreferences.getInstance();
-      final handle = sharedPreferences.getString(_handleKey);
-      _log.finer('Got handle from SharedPreferences');
-      return Result.ok(handle);
+      final value = sharedPreferences.getString(key);
+      _log.finer('Got String value for $key from SharedPreferences');
+      return Result.ok(value);
     } on Exception catch (e) {
-      _log.warning('Failed to get handle', e);
+      _log.warning(
+          'Failed to get String value for $key from SharedPreferences', e);
       return Result.error(e);
     }
   }
 
-  Future<Result<void>> saveHandle(String? handle) async {
+  Future<Result<void>> saveString(String key, String? value) async {
     try {
       final sharedPreferences = await SharedPreferences.getInstance();
-      if (handle == null) {
-        _log.finer('Removed handle');
-        await sharedPreferences.remove(_handleKey);
+      if (value == null) {
+        _log.finer('Removed String value for $key from SharedPreferences');
+        await sharedPreferences.remove(key);
       } else {
-        _log.finer('Replaced handle');
-        await sharedPreferences.setString(_handleKey, handle);
+        _log.finer('Replaced String value for $key from SharedPreferences');
+        await sharedPreferences.setString(key, value);
       }
       return Result.ok(null);
     } on Exception catch (e) {
-      _log.warning('Failed to set handle', e);
+      _log.warning(
+          'Failed to set String value for $key from SharedPreferences', e);
       return Result.error(e);
     }
   }
 
-  Future<Result<List<String>?>> fetchPreviousHandles() async {
+  Future<Result<List<String>?>> fetchStringList(String key) async {
     try {
       final sharedPreferences = await SharedPreferences.getInstance();
-      final previousHandles =
-          sharedPreferences.getStringList(_previousHandlesKey);
-      _log.finer('Got previousHandles from SharedPreferences');
-      return Result.ok(previousHandles);
+      final value = sharedPreferences.getStringList(key);
+      _log.finer('Got List<String> value for $key from SharedPreferences');
+      return Result.ok(value);
     } on Exception catch (e) {
-      _log.warning('Failed to get previousHandles', e);
+      _log.warning(
+          'Failed to get List<String> value for $key from SharedPreferences',
+          e);
       return Result.error(e);
     }
   }
 
-  Future<Result<void>> savePreviousHandles(
-      List<String>? previousHandles) async {
+  Future<Result<void>> saveStringList(String key, List<String>? value) async {
     try {
       final sharedPreferences = await SharedPreferences.getInstance();
-      if (previousHandles == null) {
-        _log.finer('Removed previousHandles');
-        await sharedPreferences.remove(_previousHandlesKey);
+      if (value == null) {
+        _log.finer(
+            'Removed List<String> value for $key from SharedPreferences');
+        await sharedPreferences.remove(key);
       } else {
-        _log.finer('Replaced previousHandles');
-        await sharedPreferences.setStringList(
-            _previousHandlesKey, previousHandles);
+        _log.finer(
+            'Replaced List<String> value for $key from SharedPreferences');
+        await sharedPreferences.setStringList(key, value);
       }
       return Result.ok(null);
     } on Exception catch (e) {
-      _log.warning('Failed to set previousHandles', e);
+      _log.warning(
+          'Failed to set List<String> value for $key from SharedPreferences',
+          e);
       return Result.error(e);
     }
   }
 
-  Future<Result<void>> _saveDateTime(String key, DateTime? date) async {
+  Future<Result<DateTime?>> fetchDateTime(String key) async {
+    try {
+      final sharedPreferences = await SharedPreferences.getInstance();
+      final value = sharedPreferences.getString(key);
+      final dateTime = value == null ? null : DateTime.parse(value);
+      _log.finer('Got DateTime value for $key from SharedPreferences');
+      return Result.ok(dateTime);
+    } on Exception catch (e) {
+      _log.warning(
+          'Failed to get DateTime value for $key from SharedPreferences', e);
+      return Result.error(e);
+    }
+  }
+
+  Future<Result<void>> saveDateTime(String key, DateTime? date) async {
     try {
       final sharedPreferences = await SharedPreferences.getInstance();
       if (date == null) {
-        _log.finer('Removed $key');
+        _log.finer('Removed DateTime value for $key from SharedPreferences');
         await sharedPreferences.remove(key);
       } else {
-        _log.finer('Replaced $key');
+        _log.finer('Replaced DateTime value for $key from SharedPreferences');
         await sharedPreferences.setString(
             key, '${date.year}-${date.month}-${date.day}');
       }
       return Result.ok(null);
     } on Exception catch (e) {
-      _log.warning('Failed to set $key', e);
-      return Result.error(e);
-    }
-  }
-
-  Future<Result<DateTime?>> _fetchDateTime(String key) async {
-    try {
-      final sharedPreferences = await SharedPreferences.getInstance();
-      final value = sharedPreferences.getString(key);
-      final dateTime = value == null ? null : DateTime.parse(value);
-      _log.finer('Got $key from SharedPreferences');
-      return Result.ok(dateTime);
-    } on Exception catch (e) {
-      _log.warning('Failed to get $key', e);
+      _log.warning(
+          'Failed to set DateTime value for $key from SharedPreferences', e);
       return Result.error(e);
     }
   }

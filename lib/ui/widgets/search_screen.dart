@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart' as launcher;
 
+import '../../data/services/local/url_launcher_service.dart';
 import '../viewmodels/search_viewmodel.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({
     super.key,
     required this.viewModel,
+    required this.urlLauncherService,
   });
 
   final SearchViewModel viewModel;
+  final UrlLauncherService urlLauncherService;
 
   @override
   SearchScreenState createState() => SearchScreenState();
@@ -19,17 +21,33 @@ class SearchScreen extends StatefulWidget {
 class SearchScreenState extends State<SearchScreen> {
   final TextEditingController _handleController = TextEditingController();
 
+  bool _isLoading = false;
+
   static final _format = DateFormat.yMMMd();
+
+  void _onLoad() {
+    setState(() => _isLoading = !widget.viewModel.loadSearchConfig.completed);
+  }
 
   @override
   void initState() {
     super.initState();
+    widget.viewModel.loadSearchConfig.addListener(_onLoad);
+    widget.viewModel.loadSearchConfig.execute();
   }
 
-  // Future<void> _saveHandle(String handle) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   await prefs.setString('handle', handle);
-  // }
+  @override
+  void didUpdateWidget(covariant SearchScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    oldWidget.viewModel.loadSearchConfig.removeListener(_onLoad);
+    widget.viewModel.loadSearchConfig.addListener(_onLoad);
+  }
+
+  @override
+  void dispose() {
+    widget.viewModel.loadSearchConfig.removeListener(_onLoad);
+    super.dispose();
+  }
 
   Future<void> _checkAndOpen(BuildContext context, String url) async {
     if (widget.viewModel.handle.isEmpty) {
@@ -37,9 +55,7 @@ class SearchScreenState extends State<SearchScreen> {
         content: Text('You need to enter a handle first!'),
       ));
     } else {
-      if (await launcher.canLaunchUrl(Uri.parse(url))) {
-        await launcher.launchUrl(Uri.parse(url));
-      } else {
+      if (!await widget.urlLauncherService.launch(url)) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text('Could not open link! :('),
@@ -173,6 +189,12 @@ class SearchScreenState extends State<SearchScreen> {
             child: ListenableBuilder(
               listenable: widget.viewModel,
               builder: (context, _) {
+                if (_isLoading) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

@@ -16,7 +16,7 @@ class SearchViewModel extends ChangeNotifier {
   SearchViewModel({
     required SearchConfigRepository searchConfigRepository,
   }) : _searchConfigRepository = searchConfigRepository {
-    loadSearchConfig = Command0(_loadSearchConfig)..execute();
+    loadSearchConfig = Command0(_loadSearchConfig);
     saveHandle = Command1(_saveHandle);
     savePreviousHandles = Command1(_savePreviousHandles);
     saveStartDate = Command1(_saveStartDate);
