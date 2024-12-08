@@ -26,7 +26,12 @@ class SearchScreenState extends State<SearchScreen> {
   static final _format = DateFormat.yMMMd();
 
   void _onLoad() {
-    setState(() => _isLoading = !widget.viewModel.loadSearchConfig.completed);
+    setState(() {
+      _isLoading = !widget.viewModel.loadSearchConfig.completed;
+      if (!_isLoading) {
+        _handleController.text = widget.viewModel.handle;
+      }
+    });
   }
 
   @override
@@ -49,12 +54,14 @@ class SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-  Future<void> _checkAndOpen(BuildContext context, String url) async {
-    if (widget.viewModel.handle.isEmpty) {
+  Future<void> _checkAndOpen(
+      BuildContext context, String handle, String url) async {
+    if (_handleController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('You need to enter a handle first!'),
       ));
     } else {
+      widget.viewModel.saveHandle.execute(handle);
       if (!await widget.urlLauncherService.launch(url)) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -88,13 +95,14 @@ class SearchScreenState extends State<SearchScreen> {
           FilledButton(
             style: FilledButton.styleFrom(
                 backgroundColor: theme.colorScheme.secondary),
-            onPressed: () => _checkAndOpen(
-                context, buildUrl(_handleController.text, startDate, endDate)),
+            onPressed: () => _checkAndOpen(context, _handleController.text,
+                buildUrl(_handleController.text, startDate, endDate)),
             child: Text('*'),
           ),
           FilledButton(
             onPressed: () => _checkAndOpen(
                 context,
+                _handleController.text,
                 buildUrl(_handleController.text, startDate, endDate,
                     user: 'flutter')),
             child: Text('flutter/*'),
@@ -102,6 +110,7 @@ class SearchScreenState extends State<SearchScreen> {
           FilledButton(
             onPressed: () => _checkAndOpen(
                 context,
+                _handleController.text,
                 buildUrl(_handleController.text, startDate, endDate,
                     user: 'dart-lang')),
             child: Text('dart-lang/*'),
@@ -110,6 +119,7 @@ class SearchScreenState extends State<SearchScreen> {
             child: Text('flutter/codelabs'),
             onPressed: () => _checkAndOpen(
                 context,
+                _handleController.text,
                 buildUrl(_handleController.text, startDate, endDate,
                     user: 'flutter', repo: 'codelabs')),
           ),
@@ -117,6 +127,7 @@ class SearchScreenState extends State<SearchScreen> {
             child: Text('flutter/samples'),
             onPressed: () => _checkAndOpen(
                 context,
+                _handleController.text,
                 buildUrl(_handleController.text, startDate, endDate,
                     user: 'flutter', repo: 'samples')),
           ),
@@ -124,6 +135,7 @@ class SearchScreenState extends State<SearchScreen> {
             child: Text('flutter/flutter'),
             onPressed: () => _checkAndOpen(
                 context,
+                _handleController.text,
                 buildUrl(_handleController.text, startDate, endDate,
                     user: 'flutter', repo: 'flutter')),
           ),
@@ -131,6 +143,7 @@ class SearchScreenState extends State<SearchScreen> {
             child: Text('flutter/games'),
             onPressed: () => _checkAndOpen(
                 context,
+                _handleController.text,
                 buildUrl(_handleController.text, startDate, endDate,
                     user: 'flutter', repo: 'games')),
           ),
@@ -138,6 +151,7 @@ class SearchScreenState extends State<SearchScreen> {
             child: Text('flutter/website'),
             onPressed: () => _checkAndOpen(
                 context,
+                _handleController.text,
                 buildUrl(_handleController.text, startDate, endDate,
                     user: 'flutter', repo: 'website')),
           ),
@@ -145,6 +159,7 @@ class SearchScreenState extends State<SearchScreen> {
             child: Text('dart-lang/dart-pad'),
             onPressed: () => _checkAndOpen(
                 context,
+                _handleController.text,
                 buildUrl(_handleController.text, startDate, endDate,
                     user: 'dart-lang', repo: 'dart-pad')),
           ),
@@ -152,6 +167,7 @@ class SearchScreenState extends State<SearchScreen> {
             child: Text('dart-lang/samples'),
             onPressed: () => _checkAndOpen(
                 context,
+                _handleController.text,
                 buildUrl(_handleController.text, startDate, endDate,
                     user: 'dart-lang', repo: 'samples')),
           ),
@@ -159,6 +175,7 @@ class SearchScreenState extends State<SearchScreen> {
             child: Text('dart-lang/sdk'),
             onPressed: () => _checkAndOpen(
                 context,
+                _handleController.text,
                 buildUrl(_handleController.text, startDate, endDate,
                     user: 'dart-lang', repo: 'sdk')),
           ),
@@ -166,6 +183,7 @@ class SearchScreenState extends State<SearchScreen> {
             child: Text('dart-lang/site-www'),
             onPressed: () => _checkAndOpen(
                 context,
+                _handleController.text,
                 buildUrl(_handleController.text, startDate, endDate,
                     user: 'dart-lang', repo: 'site-www')),
           ),
@@ -199,21 +217,20 @@ class SearchScreenState extends State<SearchScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Your info',
+                      'Search criteria',
                       style: theme.textTheme.titleLarge,
                     ),
                     SizedBox(height: 16),
                     SizedBox(
                       width: 300,
-                      child: TextField(
-                        decoration: InputDecoration(
-                          filled: true,
-                          hintText: 'Enter a title...',
-                          labelText: 'Your GitHub handle',
-                        ),
+                      child: DropdownMenu(
+                        width: 200,
+                        dropdownMenuEntries: [
+                          for (final value in widget.viewModel.previousHandles)
+                            DropdownMenuEntry(value: value, label: value)
+                        ],
+                        hintText: 'Enter a handle...',
                         controller: _handleController,
-                        onChanged: (value) =>
-                            widget.viewModel.saveHandle.execute(value),
                       ),
                     ),
                     SizedBox(height: 16),

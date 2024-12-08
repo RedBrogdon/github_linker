@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// ignore_for_file: unused_element
-
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 
@@ -18,14 +16,16 @@ class SearchViewModel extends ChangeNotifier {
   }) : _searchConfigRepository = searchConfigRepository {
     loadSearchConfig = Command0(_loadSearchConfig);
     saveHandle = Command1(_saveHandle);
-    savePreviousHandles = Command1(_savePreviousHandles);
     saveStartDate = Command1(_saveStartDate);
     saveEndDate = Command1(_saveEndDate);
     _searchConfig = SearchConfig(
-        handle: '',
-        previousHandles: [],
-        startDate: DateTime.now(),
-        endDate: DateTime.now());
+      handle: defaultHandle,
+      previousHandles: defaultPreviousHandles,
+      startDate: DateTime(
+          DateTime.now().year, defaultStartDateMonth, defaultStartDateDay),
+      endDate:
+          DateTime(DateTime.now().year, defaultEndDateMonth, defaultEndDateDay),
+    );
   }
 
   final _log = Logger('ActivitiesViewModel');
@@ -43,7 +43,6 @@ class SearchViewModel extends ChangeNotifier {
 
   /// Save the current search configuration.
   late final Command1<void, String> saveHandle;
-  late final Command1<void, List<String>> savePreviousHandles;
   late final Command1<void, DateTime> saveStartDate;
   late final Command1<void, DateTime> saveEndDate;
 
@@ -69,13 +68,10 @@ class SearchViewModel extends ChangeNotifier {
 
   Future<Result<void>> _saveHandle(String handle) async {
     _searchConfig = _searchConfig.copyWith(handle: handle);
-    notifyListeners();
-    return await _saveSearchConfig();
-  }
-
-  Future<Result<void>> _savePreviousHandles(
-      List<String> previousHandles) async {
-    _searchConfig = _searchConfig.copyWith(previousHandles: previousHandles);
+    if (!_searchConfig.previousHandles.contains(handle)) {
+      _searchConfig =
+          _searchConfig.copyWith(previousHandles: [handle, ...previousHandles]);
+    }
     notifyListeners();
     return await _saveSearchConfig();
   }

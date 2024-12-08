@@ -5,9 +5,9 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug (JS)",
+      "name": "Debug (no flags)",
       "request": "launch",
-      "flutterMode": "profile",
+      "flutterMode": "debug",
       "type": "dart"
     },
     {
