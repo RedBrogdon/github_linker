@@ -24,25 +24,25 @@ class SearchConfigRepositoryLocal implements SearchConfigRepository {
   Future<Result<SearchConfig?>> getSearchConfig() async {
     try {
       final endDate = switch (await _service.fetchDateTime(_endDateKey)) {
-        Ok o when o.value != null => o.value,
+        Ok<DateTime?> o when o.value != null => o.value!,
         _ =>
           DateTime(DateTime.now().year, defaultEndDateMonth, defaultEndDateDay),
       };
 
       final startDate = switch (await _service.fetchDateTime(_startDateKey)) {
-        Ok o when o.value != null => o.value,
+        Ok<DateTime?> o when o.value != null => o.value!,
         _ => DateTime(
             DateTime.now().year, defaultStartDateMonth, defaultStartDateDay),
       };
 
       final handle = switch (await _service.fetchString(_handleKey)) {
-        Ok o when o.value != null => o.value,
+        Ok<String?> o when o.value != null => o.value!,
         _ => defaultHandle,
       };
 
       final previousHandles =
           switch (await _service.fetchStringList(_previousHandlesKey)) {
-        Ok o when o.value != null => o.value,
+        Ok<List<String>?> o when o.value != null => o.value!,
         _ => defaultPreviousHandles,
       };
 
@@ -60,13 +60,13 @@ class SearchConfigRepositoryLocal implements SearchConfigRepository {
   }
 
   @override
-  Future<Result<void>> setSearchConfig(SearchConfig? config) async {
+  Future<Result<void>> setSearchConfig(SearchConfig config) async {
     try {
-      await _service.saveDateTime(_endDateKey, config?.endDate);
-      await _service.saveDateTime(_startDateKey, config?.startDate);
-      await _service.saveString(_handleKey, config?.handle);
+      await _service.saveDateTime(_endDateKey, config.endDate);
+      await _service.saveDateTime(_startDateKey, config.startDate);
+      await _service.saveString(_handleKey, config.handle);
       await _service.saveStringList(
-          _previousHandlesKey, config?.previousHandles);
+          _previousHandlesKey, config.previousHandles);
       return Result.ok(null);
     } on Exception catch (error) {
       return Result.error(error);

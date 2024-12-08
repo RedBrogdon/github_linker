@@ -69,8 +69,9 @@ class SearchViewModel extends ChangeNotifier {
   Future<Result<void>> _saveHandle(String handle) async {
     _searchConfig = _searchConfig.copyWith(handle: handle);
     if (!_searchConfig.previousHandles.contains(handle)) {
-      _searchConfig =
-          _searchConfig.copyWith(previousHandles: [handle, ...previousHandles]);
+      final newList = [handle, ...previousHandles];
+      newList.sort((a, b) => a.toUpperCase().compareTo(b.toUpperCase()));
+      _searchConfig = _searchConfig.copyWith(previousHandles: newList);
     }
     notifyListeners();
     return await _saveSearchConfig();

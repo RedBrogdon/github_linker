@@ -7,5 +7,5 @@ import '../../../domain/models/search_config.dart';
 
 abstract class SearchConfigRepository {
   Future<Result<SearchConfig?>> getSearchConfig();
-  Future<Result<void>> setSearchConfig(SearchConfig? handle);
+  Future<Result<void>> setSearchConfig(SearchConfig config);
 }
