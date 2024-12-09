@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "build/web",
+    "public": "packages/github_stats_viewer/build/web",
     "ignore": [
       "firebase.json",
       "**/.*",

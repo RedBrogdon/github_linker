@@ -1,16 +1,10 @@
-# github_linker
+# GitHub stats viewer
 
-A new Flutter project.
+This is a pet project of @RedBrogdon, designed to make it easy to see someone's
+GitHub activity for a given date range.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+In addition to beign useful to me in my current role as an engineering manager,
+this app allows me to get hands-on experience with aspects of Flutter that I'm
+curious about. For that reason, I actively discourage anyone from filing issues
+or submitting pull requests. Feel free to fork it, though, if you'd like to
+create your own version!
