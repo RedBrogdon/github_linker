@@ -5,15 +5,17 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug (no flags)",
-      "request": "launch",
-      "flutterMode": "debug",
-      "type": "dart"
-    },
-    {
-      "name": "Debug (wasm)",
+      "name": "Debug app",
       "request": "launch",
       "type": "dart",
+      "cwd": "${workspaceFolder}/packages/github_stats_viewer",
+      "flutterMode": "debug"
+    },
+    {
+      "name": "Debug app (wasm)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/packages/github_stats_viewer",
       "flutterMode": "debug",
       "args": [
         "--wasm",
@@ -22,15 +24,17 @@
       ]
     },
     {
-      "name": "github_linker (profile mode)",
+      "name": "Profile app",
       "request": "launch",
       "type": "dart",
+      "cwd": "${workspaceFolder}/packages/github_stats_viewer",
       "flutterMode": "profile"
     },
     {
-      "name": "github_linker (release mode)",
+      "name": "Release app",
       "request": "launch",
       "type": "dart",
+      "cwd": "${workspaceFolder}/packages/github_stats_viewer",
       "flutterMode": "release"
     }
   ]
