@@ -12,6 +12,13 @@
       "flutterMode": "debug"
     },
     {
+      "name": "Debug server",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/packages/github_authenticator",
+      "program": "bin/server.dart"
+    },
+    {
       "name": "Debug app (wasm)",
       "request": "launch",
       "type": "dart",
