@@ -6,10 +6,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'search_config.freezed.dart';
 
-const defaultStartDateYear = 2024;
+const defaultStartDateYear = 2025;
 const defaultStartDateMonth = 1;
 const defaultStartDateDay = 1;
-const defaultEndDateYear = 2024;
+const defaultEndDateYear = 2025;
 const defaultEndDateMonth = 12;
 const defaultEndDateDay = 31;
 const defaultHandle = '';

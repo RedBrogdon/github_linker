@@ -271,7 +271,7 @@ class SearchScreenState extends State<SearchScreen> {
                                     context: context,
                                     initialDate: widget.viewModel.startDate,
                                     firstDate: DateTime(2019, 1, 1),
-                                    lastDate: DateTime(2025, 1, 1),
+                                    lastDate: DateTime(2030, 1, 1),
                                   );
                                   if (newDate != null) {
                                     widget.viewModel.saveStartDate
@@ -308,8 +308,7 @@ class SearchScreenState extends State<SearchScreen> {
                                     context: context,
                                     initialDate: widget.viewModel.endDate,
                                     firstDate: DateTime(2018, 1, 1),
-                                    lastDate:
-                                        DateTime(DateTime.now().year, 12, 31),
+                                    lastDate: DateTime(2030, 12, 31),
                                   );
                                   if (newDate != null) {
                                     widget.viewModel.saveEndDate
